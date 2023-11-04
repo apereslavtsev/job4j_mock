@@ -44,9 +44,9 @@ public class IndexController {
         } catch (Exception e) {
             log.error("Remote application not responding. Error: {}. {}, ", e.getCause(), e.getMessage());
         }
-        var interviews = interviewsService.getByType(1);
-        model.addAttribute("new_interviews", interviews);
-        Set<ProfileDTO> userList = interviews.stream()
+        var newInterviews = interviewsService.getByType(1);
+        model.addAttribute("new_interviews", newInterviews);
+        Set<ProfileDTO> userList = newInterviews.stream()
                 .map(x -> profilesService.getProfileById(x.getSubmitterId()))
                 .filter(Optional::isPresent)
                 .map(Optional::get)

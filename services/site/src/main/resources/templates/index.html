@@ -109,7 +109,10 @@
                                 </small>
                             </td>
                             <td>
-                                <span class="badge bg-success">Новых: 100</span>
+                                <span class="badge bg-success">
+                                    <span>Новых: </span>
+                                    <span th:text="${category.newInterviewsCount}"></span>
+                                </span>
                             </td>
                         </tr>
                         </tbody>

@@ -6,13 +6,16 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.job4j.site.dto.CategoryDTO;
+import ru.job4j.site.dto.InterviewDTO;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @AllArgsConstructor
 @Service
 public class CategoriesService {
     private final TopicsService topicsService;
+    private final InterviewsService interviewsService;
 
     public List<CategoryDTO> getAll() throws JsonProcessingException {
         var text = new RestAuthCall("http://localhost:9902/categories/").get();
@@ -62,7 +65,15 @@ public class CategoriesService {
     public List<CategoryDTO> getMostPopular() throws JsonProcessingException {
         var categoriesDTO = getPopularFromDesc();
         for (var categoryDTO : categoriesDTO) {
-            categoryDTO.setTopicsSize(topicsService.getByCategory(categoryDTO.getId()).size());
+            List<Integer> topicIds = topicsService.getByCategory(categoryDTO.getId()).stream()
+                    .map(t -> t.getId()).collect(Collectors.toList());
+            categoryDTO.setTopicsSize(topicIds.size());
+
+            List<InterviewDTO> newInterviews = interviewsService.getByType(1);
+            categoryDTO.setNewInterviewsCount(
+                    (int) newInterviews.stream()
+                            .filter(interviewDTO -> topicIds.contains(interviewDTO.getTopicId())).count()
+            );
         }
         return categoriesDTO;
     }
