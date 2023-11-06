@@ -2,17 +2,16 @@ package ru.job4j.site.service;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationContext;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
-import org.springframework.http.client.ClientHttpResponse;
 import org.springframework.util.LinkedMultiValueMap;
-import org.springframework.web.client.DefaultResponseErrorHandler;
 import org.springframework.web.client.RestTemplate;
+import ru.job4j.site.configuration.ApplicationContextHolder;
 
-import java.io.IOException;
 import java.util.Map;
 
 @AllArgsConstructor
@@ -20,8 +19,15 @@ import java.util.Map;
 public class RestAuthCall {
     private final String url;
 
+    private ApplicationContext context;
+
+    public RestAuthCall(String url) {
+        this.url = url;
+        this.context = ApplicationContextHolder.getApplicationContext();
+    }
+
     public String get() {
-        var restTemplate = new RestTemplate();
+        var restTemplate = context.getBean(RestTemplate.class);
         var headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
         return restTemplate.exchange(url, HttpMethod.GET,
@@ -31,17 +37,7 @@ public class RestAuthCall {
     }
 
     public String get(String token) {
-        var restTemplate = new RestTemplate();
-        restTemplate.setErrorHandler(
-                new DefaultResponseErrorHandler() {
-                    @Override
-                    public void handleError(ClientHttpResponse response) throws IOException {
-                        if (response.getStatusCode().value() != 401) {
-                            log.error("Call: " + url, response.getStatusText());
-                        }
-                    }
-                }
-        );
+        var restTemplate = context.getBean(RestTemplate.class);
         var headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
         headers.set("Authorization", "Bearer " + token);
@@ -52,7 +48,7 @@ public class RestAuthCall {
     }
 
     public String token(Map<String, String> params) {
-        var restTemplate = new RestTemplate();
+        var restTemplate = context.getBean(RestTemplate.class);
         var headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
         headers.set("Authorization", "Basic am9iNGo6cGFzc3dvcmQ=");
@@ -66,7 +62,7 @@ public class RestAuthCall {
     }
 
     public String post(String token, String json) {
-        var restTemplate = new RestTemplate();
+        var restTemplate = context.getBean(RestTemplate.class);
         var headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         headers.set("Authorization", "Bearer " + token);
@@ -76,7 +72,7 @@ public class RestAuthCall {
     }
 
     public void update(String token, String json) {
-        var restTemplate = new RestTemplate();
+        var restTemplate = context.getBean(RestTemplate.class);
         var headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         headers.set("Authorization", "Bearer " + token);
@@ -85,7 +81,7 @@ public class RestAuthCall {
     }
 
     public void delete(String token, String json) {
-        var restTemplate = new RestTemplate();
+        var restTemplate = context.getBean(RestTemplate.class);
         var headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         headers.set("Authorization", "Bearer " + token);
@@ -94,7 +90,7 @@ public class RestAuthCall {
     }
 
     public void put(String token, String json) {
-        var restTemplate = new RestTemplate();
+        var restTemplate = context.getBean(RestTemplate.class);
         var headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         headers.set("Authorization", "Bearer " + token);
